@@ -2,9 +2,18 @@ import { api } from './api';
 
 const API_BASE_URL = '/portfolios';
 
+export interface Dashboard {
+  total_assets_value: number;
+  total_portfolios: number;
+  assets_performance: number;
+  portfolios: Portfolio[];
+}
+
 export interface Portfolio {
   id: string;
   name: string;
+  base_currency: string;
+  created_at: string;
   assets: Asset[];
 }
 
@@ -12,6 +21,13 @@ export interface Asset {
   symbol: string;
   quantity: number;
   value: number;
+  average_price: number;
+}
+
+// Obtener todos los portfolios
+export async function getDashboardInfo(): Promise<Dashboard> {
+  const response = await api.get<Dashboard>(API_BASE_URL + '/dashboard');
+  return response;
 }
 
 // Obtener todos los portfolios

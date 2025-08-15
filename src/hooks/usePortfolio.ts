@@ -6,8 +6,17 @@ import {
   updatePortfolio,
   deletePortfolio,
   type Portfolio,
+  getDashboardInfo,
+  type Dashboard,
 } from '../services/portfolio';
 
+// Obtener todos los portfolios
+export function useDashboard() {
+  return useQuery<Dashboard>({
+    queryKey: ['dashboard'],
+    queryFn: getDashboardInfo,
+  });
+}
 // Obtener todos los portfolios
 export function usePortfolios() {
   return useQuery<Portfolio[]>({

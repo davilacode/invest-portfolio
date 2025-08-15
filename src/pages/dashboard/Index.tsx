@@ -1,13 +1,15 @@
+
 import { useAuth } from '../../context/useAuth';
-import { usePortfolios } from '../../hooks/usePortfolio';
+import { useDashboard } from '../../hooks/usePortfolio';
+import { useNavigate } from 'react-router-dom';
+import type { Portfolio } from '../../services/portfolio';
 
 export function Dashboard() {
   const { user, logout } = useAuth();
+  const { data } = useDashboard();
+  const navigate = useNavigate();
 
-  const { data } = usePortfolios();
-
-  console.log('Portfolios:', data);
-
+  // ...existing code...
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-200 dark:from-neutral-900 dark:to-neutral-950 px-4 pt-28 pb-12">
       <div className="max-w-6xl mx-auto space-y-10">
@@ -26,9 +28,9 @@ export function Dashboard() {
 
         <section className="grid gap-6 md:grid-cols-3">
           {[
-            { label: 'Valor Total', value: '—', desc: 'Suma de tus portafolios' },
-            { label: 'Rendimiento 24h', value: '—', desc: 'Variación diaria (%)' },
-            { label: 'Portafolios', value: '—', desc: 'Número creados' }
+            { label: 'Valor Total', value: data?.total_assets_value ?? 0, desc: 'Suma de tus portafolios' },
+            { label: 'Rendimiento 24h', value: 0, desc: 'Variación diaria (%)' },
+            { label: 'Portafolios', value: data?.total_portfolios ?? 0, desc: 'Número creados' }
           ].map(card => (
             <div key={card.label} className="relative group overflow-hidden rounded-2xl border border-slate-200/60 dark:border-neutral-800 bg-white/70 dark:bg-neutral-900/60 backdrop-blur shadow-sm px-5 py-6 transition hover:shadow-md">
               <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition [mask-image:radial-gradient(circle_at_center,black,transparent_70%)]">
@@ -47,13 +49,30 @@ export function Dashboard() {
             <div className="absolute -top-24 -left-24 w-72 h-72 rounded-full bg-fuchsia-500/10 blur-3xl" />
           </div>
           <div className="relative">
-            <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-100 mb-4">Resumen</h2>
-            <p className="text-sm text-slate-600 dark:text-slate-400 max-w-prose mb-4">
-              Aquí verás un resumen consolidado de tus portafolios, rendimiento y distribución de assets. Aún no has cargado datos, pero este espacio mostrará gráficos e insights cuando integres la API.
-            </p>
-            <div className="rounded-lg border border-dashed border-slate-300 dark:border-neutral-700 p-6 text-center text-slate-500 dark:text-slate-500 text-sm">
-              (Pendiente) Inserta componentes de gráficos / tablas aquí.
-            </div>
+            <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-100 mb-4">Portafolios</h2>
+            {Array.isArray(data?.portfolios) && data.portfolios.length > 0 ? (
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {data.portfolios.map((p: Portfolio) => (
+                  <button
+                    key={p.id}
+                    onClick={() => navigate(`/dashboard/portfolio/${p.id}`)}
+                    className="w-full text-left rounded-xl border border-slate-300 dark:border-neutral-700 bg-white/80 dark:bg-neutral-900/70 shadow-sm hover:shadow-md transition p-5 group focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-lg font-bold text-slate-800 dark:text-slate-100 group-hover:text-indigo-600 transition">{p.name}</span>
+                      <span className="text-xs px-2 py-0.5 rounded bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-200 font-semibold">{p.base_currency}</span>
+                    </div>
+                    <div className="flex items-center gap-4 mb-1">
+                      <span className="text-sm text-slate-600 dark:text-slate-300">Assets: <b>{p.assets?.length ?? 0}</b></span>
+                      <span className="text-xs text-slate-400">ID: {p.id}</span>
+                    </div>
+                    <div className="text-xs text-slate-500 dark:text-slate-400">Creado: {new Date(p.created_at).toLocaleDateString()}</div>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p className="text-slate-500 dark:text-slate-400 text-sm">No tienes portafolios aún.</p>
+            )}
           </div>
         </section>
       </div>

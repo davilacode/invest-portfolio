@@ -4,22 +4,26 @@ import { login as loginService, register as registerService, logout as logoutSer
 import type { User } from '../services/auth';
 import { AuthContext } from './useAuth';
 import { api, setCsrfToken } from '../services/api';
+import ServerLoadingScreen from '../components/ServerLoadingScreen';
 
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(getStoredUser());
   const [loading, setLoading] = useState(false);
   const [isAuth, setIsAuth] = useState(isAuthenticated());
+  const [serverReady, setServerReady] = useState(false);
 
   // Función para obtener y guardar el CSRF token
   const fetchAndStoreCsrfToken = useCallback(async () => {
     try {
-      const res = await api.instance.get('/auth/csrf');
+      const res = await api.instance.get('/auth/csrf/');
       if (res.data?.csrftoken) {
         setCsrfToken(res.data.csrftoken);
+        setServerReady(true);
       }
     } catch (e) {
       console.debug('[CSRF] fallo obteniendo token', e);
+      setTimeout(fetchAndStoreCsrfToken, 2000); // Reintenta cada 2s
     }
   }, []);
 
@@ -58,14 +62,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     fetchAndStoreCsrfToken();
-  }, [fetchAndStoreCsrfToken]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
+  if (!serverReady) {
+    return <ServerLoadingScreen />;
+  }
   return (
     <AuthContext.Provider value={{ user, loading, login, register, logout, isAuth }}>
       {children}
     </AuthContext.Provider>
   );
 }
+
 
 
 export default AuthProvider;
