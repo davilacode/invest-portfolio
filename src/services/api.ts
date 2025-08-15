@@ -1,13 +1,14 @@
 import axios, { AxiosError, type AxiosInstance } from 'axios';
+import Cookies from 'universal-cookie';
 
 export const BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8000/api').replace(/\/$/, '');
+
+const cookie = new Cookies();
 
 export interface AuthTokens {
   access: string;
   refresh?: string;
 }
-
-const CSRF_STORAGE_KEY = 'csrfToken';
 
 const apiClient: AxiosInstance = axios.create({
   baseURL: BASE_URL,
@@ -15,34 +16,17 @@ const apiClient: AxiosInstance = axios.create({
   withCredentials: true,
 });
 
-export function setCsrfToken(token: string) {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem(CSRF_STORAGE_KEY, token);
-  }
-  apiClient.defaults.headers.common['X-CSRFToken'] = token;
-}
+export const getCsrfToken = () => {
+  return cookie.get('csrftoken');
+};
 
-export function getCsrfToken() {
-  const csrfToken = localStorage.getItem(CSRF_STORAGE_KEY);
-  return csrfToken;
-}
-
-export function clearCsrfToken() {
-  delete apiClient.defaults.headers.common['X-CSRFToken'];
-  delete apiClient.defaults.headers.common['X-CSRFTOKEN'];
-  if (typeof window !== 'undefined') {
-    localStorage.removeItem(CSRF_STORAGE_KEY);
-  }
-}
-
-// Request interceptor to inject auth and CSRF token
+// Request interceptor to inject CSRF token from cookies
 apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('accessToken');
-  if (token && config.headers) {
-    config.headers.Authorization = `Bearer ${token}`;
-    config.headers['X-CSRFToken'] = getCsrfToken();
+  const csrfToken = getCsrfToken();
+  console.log(cookie.get('csrftoken'))
+  if (csrfToken && config.headers) {
+    config.headers['X-CSRFToken'] = csrfToken;
   }
-
   return config;
 });
 

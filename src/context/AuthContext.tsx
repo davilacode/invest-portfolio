@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { login as loginService, register as registerService, logout as logoutService, getStoredUser, isAuthenticated } from '../services/auth';
 import type { User } from '../services/auth';
 import { AuthContext } from './useAuth';
-import { api, setCsrfToken, clearCsrfToken, getCsrfToken } from '../services/api';
+import { api, getCsrfToken } from '../services/api';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(getStoredUser());
@@ -36,7 +36,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     logoutService();
     setUser(null);
     setIsAuth(false);
-    clearCsrfToken();
   }, []);
 
   useEffect(() => {
@@ -44,22 +43,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    let cancelled = false;
-    
     if (getCsrfToken()) {
-      return () => { cancelled = true; };
+      return;
     }
     (async () => {
       try {
-        const res = await api.instance.get('/auth/csrf');
-        if (!cancelled && res.data?.csrftoken) {
-          setCsrfToken(res.data.csrftoken);
-        }
+        await api.instance.get('/auth/csrf');
       } catch (e) {
         console.debug('[CSRF] fallo obteniendo token', e);
       }
     })();
-    return () => { cancelled = true; };
+    return;
   }, []);
 
   return (
