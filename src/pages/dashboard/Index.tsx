@@ -3,8 +3,11 @@ import { useAuth } from '../../context/useAuth';
 import { useDashboard } from '../../hooks/usePortfolio';
 import { useNavigate } from 'react-router-dom';
 import type { Portfolio } from '../../services/portfolio';
+import { useState } from 'react';
+import { AddPortfolio } from '../../components/AddPortfolio';
 
 export function Dashboard() {
+  const [ openAddPortfolio, setOpenAddPortfolio ] = useState(false);
   const { user, logout } = useAuth();
   const { data } = useDashboard();
   const navigate = useNavigate();
@@ -50,14 +53,23 @@ export function Dashboard() {
             <div className="absolute -top-24 -left-24 w-72 h-72 rounded-full bg-fuchsia-500/10 blur-3xl" />
           </div>
           <div className="relative">
-            <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-100 mb-4">Portafolios</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-100 mb-4">Portafolios</h2>
+              <button
+                type="button"
+                onClick={() => setOpenAddPortfolio(true)}
+                className="relative inline-flex items-center justify-center rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed text-white font-medium text-sm px-4 py-2.5 shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition"
+              >
+                Agregar portafolio
+              </button>
+            </div>
             {Array.isArray(data?.portfolios) && data.portfolios.length > 0 ? (
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {data.portfolios.map((p: Portfolio) => (
                   <button
                     key={p.id}
                     onClick={() => navigate(`/dashboard/portfolio/${p.id}`)}
-                    className="w-full text-left rounded-xl border border-slate-300 dark:border-neutral-700 bg-white/80 dark:bg-neutral-900/70 shadow-sm hover:shadow-md transition p-5 group focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full text-left rounded-xl border border-slate-300 dark:border-neutral-700 bg-white/80 dark:bg-neutral-900/70 shadow-sm hover:shadow-md transition p-5 group focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
                   >
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-lg font-bold text-slate-800 dark:text-slate-100 group-hover:text-indigo-600 transition">{p.name}</span>
@@ -77,6 +89,7 @@ export function Dashboard() {
           </div>
         </section>
       </div>
+      <AddPortfolio open={openAddPortfolio} setOpen={setOpenAddPortfolio} />
     </main>
   );
 }

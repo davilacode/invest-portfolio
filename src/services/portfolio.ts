@@ -1,6 +1,6 @@
 import { api } from './api';
 
-const API_BASE_URL = '/portfolios';
+const API_BASE_URL = '/portfolios/';
 
 export interface Dashboard {
   total_assets_value: number;
@@ -24,9 +24,24 @@ export interface Asset {
   average_price: number;
 }
 
-// Obtener todos los portfolios
+export interface MarketQuote {
+  symbol: string;
+  name: string;
+  price: number;
+  period: string;
+  history: number[];
+}
+
+// Obtener valores del mercado segun simbolo
+export async function getMarketQuote(data: { symbol: string, period: string }): Promise<MarketQuote> {
+  const query = `symbol=${encodeURIComponent(data.symbol)}&period=${encodeURIComponent(data.period)}`;
+  const response = await api.get<MarketQuote>(`/market/quote/?${query}`);
+  return response;
+}
+
+// Obtener información del dashboard
 export async function getDashboardInfo(): Promise<Dashboard> {
-  const response = await api.get<Dashboard>(API_BASE_URL + '/dashboard');
+  const response = await api.get<Dashboard>(API_BASE_URL + 'dashboard/');
   return response;
 }
 
@@ -38,23 +53,23 @@ export async function getPortfolios(): Promise<Portfolio[]> {
 
 // Obtener un portfolio por ID
 export async function getPortfolioById(id: string): Promise<Portfolio> {
-  const response = await api.get<Portfolio>(`${API_BASE_URL}/${id}`);
+  const response = await api.get<Portfolio>(`${API_BASE_URL}${id}`);
   return response;
 }
 
 // Crear un nuevo portfolio
-export async function createPortfolio(portfolio: Omit<Portfolio, 'id'>): Promise<Portfolio> {
+export async function createPortfolio(portfolio: Omit<Portfolio, 'id' | 'assets' | 'created_at'>): Promise<Portfolio> {
   const response = await api.post<Portfolio>(API_BASE_URL, portfolio);
   return response;
 }
 
 // Actualizar un portfolio existente
 export async function updatePortfolio(id: string, portfolio: Partial<Portfolio>): Promise<Portfolio> {
-  const response = await api.put<Portfolio>(`${API_BASE_URL}/${id}`, portfolio);
+  const response = await api.put<Portfolio>(`${API_BASE_URL}${id}`, portfolio);
   return response;
 }
 
 // Eliminar un portfolio
 export async function deletePortfolio(id: string): Promise<void> {
-  await api.delete(`${API_BASE_URL}/${id}`);
+  await api.delete(`${API_BASE_URL}${id}`);
 }

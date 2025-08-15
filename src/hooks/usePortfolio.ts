@@ -8,9 +8,19 @@ import {
   type Portfolio,
   getDashboardInfo,
   type Dashboard,
+  getMarketQuote,
+  type MarketQuote,
 } from '../services/portfolio';
 
-// Obtener todos los portfolios
+// Traer información de simbolos
+export function useMarketQuote(data: { symbol: string, period: string }) {
+  return useQuery<MarketQuote>({
+    queryKey: ['marketQuote', data],
+    queryFn: () => getMarketQuote(data),
+  });
+}
+
+// Obtener información del dashboard
 export function useDashboard() {
   return useQuery<Dashboard>({
     queryKey: ['dashboard'],
@@ -36,12 +46,13 @@ return useQuery<Portfolio>({
 
 // Crear un nuevo portfolio
 export function useCreatePortfolio() {
-const queryClient = useQueryClient();
-return useMutation({
-  mutationFn: (portfolio: Omit<Portfolio, 'id'>) => createPortfolio(portfolio),
-  onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ['portfolios'] });
-  },
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (portfolio: Omit<Portfolio, 'id' | 'assets' | 'created_at'>) => createPortfolio(portfolio),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['portfolios'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    },
 });
 }
 
