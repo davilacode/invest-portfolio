@@ -14,7 +14,7 @@ export default function Login() {
     setError(null);
     try {
       await login(username, password);
-      navigate('/dashboard');
+      navigate('/');
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Error de login';
       setError(msg);

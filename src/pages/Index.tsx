@@ -1,7 +1,9 @@
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/useAuth';
 
 export default function Index() {
   const navigate = useNavigate();
+  const { isAuth } = useAuth();
   return (
     <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-200 dark:from-neutral-900 dark:to-neutral-950 px-4 pt-24 pb-12">
       <div className="w-full max-w-2xl mx-auto">
@@ -18,18 +20,29 @@ export default function Index() {
               Gestiona y visualiza tus inversiones fácilmente: organiza portafolios, sigue el rendimiento y mantén el control de tus assets en un solo lugar.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <button
-                onClick={() => navigate('/login')}
-                className="relative inline-flex items-center justify-center w-full sm:w-auto rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium px-6 py-3 shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition"
-              >
-                Iniciar sesión
-              </button>
-              <button
-                onClick={() => navigate('/register')}
-                className="w-full sm:w-auto inline-flex items-center justify-center rounded-lg border border-indigo-600/80 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 text-sm font-medium px-6 py-3 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                Crear cuenta
-              </button>
+              {isAuth ? (
+                <button
+                  onClick={() => navigate('/dashboard')}
+                  className="relative inline-flex items-center justify-center w-full sm:w-auto rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium px-6 py-3 shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition"
+                >
+                  Ir al dashboard
+                </button>
+              ) : (
+                <>
+                  <button
+                    onClick={() => navigate('/login')}
+                    className="relative inline-flex items-center justify-center w-full sm:w-auto rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium px-6 py-3 shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition"
+                  >
+                    Iniciar sesión
+                  </button>
+                  <button
+                    onClick={() => navigate('/register')}
+                    className="w-full sm:w-auto inline-flex items-center justify-center rounded-lg border border-indigo-600/80 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 text-sm font-medium px-6 py-3 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  >
+                    Crear cuenta
+                  </button>
+                </>
+              )}
             </div>
             <p className="mt-8 text-[11px] text-center text-slate-500 dark:text-slate-500">
               Al continuar aceptas nuestra política de privacidad y términos de uso.

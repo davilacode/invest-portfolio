@@ -5,7 +5,7 @@ import type { User } from '../services/auth';
 import { AuthContext } from './useAuth';
 import { api, setCsrfToken } from '../services/api';
 import ServerLoadingScreen from '../components/ServerLoadingScreen';
-
+import { queryClient } from '../main';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(getStoredUser());
@@ -31,7 +31,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     try {
       const data = await loginService(username, password);
-      if (data.user) setUser(data.user);
+      if (data.user) {
+        setUser(data.user);
+      } else {
+        setUser(getStoredUser());
+      }
       setIsAuth(true);
       await fetchAndStoreCsrfToken(); // Renovar CSRF tras login
     } finally {
@@ -54,10 +58,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await logoutService();
     setUser(null);
     setIsAuth(false);
+    localStorage.removeItem('user');
+    queryClient.removeQueries();
   }, []);
 
   useEffect(() => {
+    // Sincronizar estado inicial con storage
     setIsAuth(isAuthenticated());
+    if (!user) {
+      setUser(getStoredUser());
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

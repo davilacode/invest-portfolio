@@ -1,4 +1,4 @@
-import { Routes, Route, Link } from 'react-router-dom';
+import { Routes, Route, Link, Navigate } from 'react-router-dom';
 import { useAuth } from './context/useAuth';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import Login from './pages/auth/Login';
@@ -20,8 +20,8 @@ export default function App() {
       </nav>
       <Routes>
         <Route path="/" element={<Index />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={isAuth ? <Navigate to="/" replace /> : <Login />} />
+        <Route path="/register" element={isAuth ? <Navigate to="/" replace /> : <Register />} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/dashboard/portfolio/:id" element={<ProtectedRoute><Portfolio /></ProtectedRoute>} />
         <Route path="*" element={<div className="p-6">404</div>} />

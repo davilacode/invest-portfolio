@@ -1,5 +1,5 @@
 
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { usePortfolio } from '../../hooks/usePortfolio';
 import type { Asset } from '../../services/portfolio';
 import { useState } from 'react';
@@ -49,13 +49,21 @@ export const Portfolio: React.FC = () => {
                   <span>Assets: <b>{portfolio.assets.length}</b></span>
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={() => setOpenAddAssets(true)}
-                className="relative inline-flex items-center justify-center rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed text-white font-medium text-sm px-4 py-2.5 shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition"
-              >
-                Agregar activos
-              </button>
+              <div className="flex items-center space-x-2">
+                <Link
+                  to="/dashboard"
+                  className="relative inline-flex items-center justify-center rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 dark:bg-neutral-800 dark:hover:bg-neutral-700 dark:text-slate-200 font-medium text-sm px-4 py-2.5 shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-400 transition"
+                >
+                  Atrás
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => setOpenAddAssets(true)}
+                  className="relative inline-flex items-center justify-center rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed text-white font-medium text-sm px-4 py-2.5 shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition"
+                >
+                  Agregar activos
+                </button>
+              </div>
             </div>
             <div className="overflow-x-auto">
               <table className="min-w-full border-separate border-spacing-y-2">
@@ -74,7 +82,7 @@ export const Portfolio: React.FC = () => {
                   {portfolio.assets.map(asset => {
                     return (
                       <tr key={asset.symbol} className="bg-white/80 dark:bg-neutral-900/70 rounded-lg shadow-sm">
-                        <td className="py-2 px-3 text-indigo-600 dark:text-indigo-300 font-mono cursor-pointer" onClick={() => {
+                        <td className="py-2 cursor-pointer px-3 text-indigo-600 dark:text-indigo-300 font-mono underline" onClick={() => {
                           setOpenTransactionsModal(true);
                           setSelectedAsset(asset);
                         }}>{asset.symbol}</td>

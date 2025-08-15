@@ -2,8 +2,6 @@ import { useContext } from 'react';
 import type { User } from '../services/auth';
 import { createContext } from 'react';
 
-// Re-export context type via a dedicated hook file to avoid Fast Refresh warning in provider file.
-
 export interface AuthContextValue {
   user: User | null;
   loading: boolean;
