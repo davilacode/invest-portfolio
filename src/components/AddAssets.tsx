@@ -1,7 +1,8 @@
 
 import { useState } from 'react';
-import { useMarketQuote } from '../hooks/usePortfolio';
+import { useAddAssets, useMarketQuote } from '../hooks/usePortfolio';
 import { AssetQuoteDetail } from './AssetQuoteDetail';
+import { useParams } from 'react-router-dom';
 
 interface AddAssetsProps {
   open: boolean;
@@ -13,19 +14,34 @@ export const AddAssets: React.FC<AddAssetsProps> = ({
   setOpen
 }) => {
 
+  const { id } = useParams()
 
   const [selectedSymbol, setSelectedSymbol] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(false);
-  const { data: quote, isLoading: quoteLoading } = useMarketQuote({ symbol: selectedSymbol ?? '', period: '15d' });
+  const { data: quote, isLoading: quoteLoading } = useMarketQuote({ symbol: selectedSymbol, period: '15d' });
+  const { mutate } = useAddAssets(id ?? '');
 
   if (!open) return null;
 
   const onCreate = async () => {
     setLoading(true);
-    // ... lógica para crear el asset ...
-    setLoading(false);
-    setOpen(false);
+
+    const query = {
+      symbol: selectedSymbol,
+      quantity,
+      average_price: quote?.price,
+    }
+
+    mutate(query, {
+      onSuccess: () => {
+        setSelectedSymbol('');
+        setQuantity(1);
+        setLoading(false);
+        setOpen(false);
+      },
+    });
+
   };
   const assetsLists = [
     { id: 1, symbol: 'AAPL' }, // Apple

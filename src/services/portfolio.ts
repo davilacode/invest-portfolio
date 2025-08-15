@@ -73,3 +73,8 @@ export async function updatePortfolio(id: string, portfolio: Partial<Portfolio>)
 export async function deletePortfolio(id: string): Promise<void> {
   await api.delete(`${API_BASE_URL}${id}`);
 }
+
+// Agregar asset a portfolio
+export async function addAsset(id: string, data: { symbol: string; quantity: number; average_price: number | undefined }): Promise<void> {
+  await api.post(`${API_BASE_URL}${id}/assets/`, data);
+}

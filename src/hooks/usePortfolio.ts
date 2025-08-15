@@ -10,6 +10,7 @@ import {
   type Dashboard,
   getMarketQuote,
   type MarketQuote,
+  addAsset,
 } from '../services/portfolio';
 
 // Traer información de simbolos
@@ -17,6 +18,7 @@ export function useMarketQuote(data: { symbol: string, period: string }) {
   return useQuery<MarketQuote>({
     queryKey: ['marketQuote', data],
     queryFn: () => getMarketQuote(data),
+    enabled: data.symbol !== '',
   });
 }
 
@@ -78,4 +80,16 @@ return useMutation({
     queryClient.invalidateQueries({ queryKey: ['portfolios'] });
   },
 });
+}
+
+export function useAddAssets(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { symbol: string; quantity: number; average_price: number | undefined }) => addAsset(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['portfolios'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['portfolios', id] });
+    },
+  });
 }
