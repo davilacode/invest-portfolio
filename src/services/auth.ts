@@ -14,9 +14,7 @@ export interface LoginResponse {
 
 export async function login(username: string, password: string): Promise<LoginResponse> {
   const data = await api.post<LoginResponse>('/auth/login/', { username, password });
-  localStorage.setItem('accessToken', data.access);
-  if (data.refresh) localStorage.setItem('refreshToken', data.refresh);
-  if (data.user) localStorage.setItem('user', JSON.stringify(data.user));
+  if (data) localStorage.setItem('user', JSON.stringify(data));
   return data;
 }
 
@@ -27,8 +25,6 @@ export async function register(username: string, email: string, password: string
 
 export async function logout() {
   const data = await api.post('/auth/logout/');
-  localStorage.removeItem('accessToken');
-  localStorage.removeItem('refreshToken');
   localStorage.removeItem('user');
   return data;
 }

@@ -1,14 +1,13 @@
 import axios, { AxiosError, type AxiosInstance } from 'axios';
-import Cookies from 'universal-cookie';
 
 export const BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8000/api').replace(/\/$/, '');
-
-const cookie = new Cookies();
 
 export interface AuthTokens {
   access: string;
   refresh?: string;
 }
+
+const CSRF_STORAGE_KEY = 'csrfToken';
 
 const apiClient: AxiosInstance = axios.create({
   baseURL: BASE_URL,
@@ -16,19 +15,17 @@ const apiClient: AxiosInstance = axios.create({
   withCredentials: true,
 });
 
-export const getCsrfToken = () => {
-  return cookie.get('csrftoken');
-};
-
-// Request interceptor to inject CSRF token from cookies
-apiClient.interceptors.request.use((config) => {
-  const csrfToken = getCsrfToken();
-  console.log(cookie.get('csrftoken'))
-  if (csrfToken && config.headers) {
-    config.headers['X-CSRFToken'] = csrfToken;
+export function setCsrfToken(token: string) {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(CSRF_STORAGE_KEY, token);
   }
-  return config;
-});
+  apiClient.defaults.headers.common['X-CSRFToken'] = token;
+}
+
+export function getCsrfToken() {
+  const csrfToken = localStorage.getItem(CSRF_STORAGE_KEY);
+  return csrfToken;
+}
 
 // Response interceptor for error normalization
 apiClient.interceptors.response.use(
