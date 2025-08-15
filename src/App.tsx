@@ -6,9 +6,27 @@ import Register from './pages/auth/Register';
 import Index from './pages/Index';
 import { Dashboard } from './pages/dashboard/Index';
 import { Portfolio } from './pages/dashboard/Portfolio';
+import { Sun, Moon } from 'lucide-react';
+import { useState, useEffect } from 'react';
+
+function getInitialTheme() {
+  if (typeof window !== 'undefined' && window.localStorage) {
+    const stored = window.localStorage.getItem('theme');
+    if (stored) return stored;
+    if (window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark';
+  }
+  return 'light';
+}
 
 export default function App() {
   const { isAuth } = useAuth();
+  
+  const [theme, setTheme] = useState(getInitialTheme());
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+    window.localStorage.setItem('theme', theme);
+  }, [theme]);
 
   return (
     <>
@@ -17,6 +35,15 @@ export default function App() {
         {!isAuth && <Link to="/login" className="text-sm text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition">Login</Link>}
         {!isAuth && <Link to="/register" className="text-sm text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition">Registro</Link>}
         {isAuth && <Link to="/dashboard" className="text-sm text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition">Dashboard</Link>}
+      
+        <button
+          type="button"
+          aria-label="Toggle dark mode"
+          className="ml-auto p-2 rounded hover:bg-slate-100 dark:hover:bg-neutral-800 transition"
+          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+        >
+          {theme === 'dark' ? <Sun size={20} className="text-yellow-400" /> : <Moon size={20} className="text-slate-700" />}
+        </button>
       </nav>
       <Routes>
         <Route path="/" element={<Index />} />

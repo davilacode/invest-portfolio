@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Variables para fondos claro/oscuro */
 :root {
   --app-bg: #f8fafc; /* slate-50 */
