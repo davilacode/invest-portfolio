@@ -5,6 +5,33 @@ import { useNavigate } from 'react-router-dom';
 import type { Portfolio } from '../../services/portfolio';
 import { useState } from 'react';
 import { AddPortfolio } from '../../components/AddPortfolio';
+import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
+
+export function Performance({ value }: { value: number }) {
+  const isPositive = value >= 0;
+  return (
+    <span className={`inline-flex items-center gap-1 text-2xl font-bold ${isPositive ? 'text-green-600' : 'text-rose-600'}`}>
+      {isPositive ? <ArrowUpRight className="w-5 h-5" /> : <ArrowDownRight className="w-5 h-5" />}
+      {value > 0 ? '+' : ''}{value}%
+    </span>
+  );
+}
+
+export function Values({ current, investment }: { current: number; investment: number }) {
+  const isPositive = current >= investment;
+  return (
+    <div className="flex flex-col gap-1">
+      <span className="text-2xl font-bold text-slate-800 dark:text-slate-100">
+        <span className={` inline-flex items-center gap-1 ${isPositive ? 'text-green-600' : 'text-rose-600'}`}>{isPositive ? <ArrowUpRight className="w-5 h-5" /> : <ArrowDownRight className="w-5 h-5" />}${current.toFixed(2).toLocaleString() ?? 0}</span>
+        <span className="ml-2 text-xs font-normal text-slate-500 dark:text-slate-400">Valor actual</span>
+      </span>
+      <span className="text-base font-semibold text-slate-600 dark:text-slate-400">
+        ${investment.toFixed(2).toLocaleString()}
+        <span className="ml-2 text-xs font-normal text-slate-400 dark:text-slate-400">Inversión</span>
+      </span>
+    </div>
+  );
+}
 
 export function Dashboard() {
   const [ openAddPortfolio, setOpenAddPortfolio ] = useState(false);
@@ -12,7 +39,12 @@ export function Dashboard() {
   const { data } = useDashboard();
   const navigate = useNavigate();
 
-  const { total_assets_value, total_portfolios } = data || {};
+  const { 
+    total_current_value, 
+    total_investment_cost, 
+    total_performance_pct, 
+    total_portfolios 
+  } = data || {};
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-200 dark:from-neutral-900 dark:to-neutral-950 px-4 pt-28 pb-12">
@@ -31,17 +63,20 @@ export function Dashboard() {
         </header>
 
         <section className="grid gap-6 md:grid-cols-3">
-          {[
-            { label: 'Valor Total', value: `$${total_assets_value?.toLocaleString() ?? 0}`, desc: 'Suma de tus portafolios' },
-            { label: 'Rendimiento 24h', value: 0, desc: 'Variación diaria (%)' },
-            { label: 'Portafolios', value: total_portfolios ?? 0, desc: 'Número creados' }
+          {[{
+            label: 'Valor',
+            value: <Values current={total_current_value ?? 0} investment={total_investment_cost ?? 0} />,
+            desc: 'Suma de tus portafolios'
+          },
+          { label: 'Rendimiento', value: <Performance value={Number(total_performance_pct?.toFixed(2) ?? 0)} />, desc: 'Variación actual (%)' },
+          { label: 'Portafolios', value: total_portfolios ?? 0, desc: 'Número creados' }
           ].map(card => (
             <div key={card.label} className="relative group overflow-hidden rounded-2xl border border-slate-200/60 dark:border-neutral-800 bg-white/70 dark:bg-neutral-900/60 backdrop-blur shadow-sm px-5 py-6 transition hover:shadow-md">
               <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition [mask-image:radial-gradient(circle_at_center,black,transparent_70%)]">
                 <div className="absolute -top-10 -right-10 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl" />
               </div>
               <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-2">{card.label}</p>
-              <p className="text-2xl font-bold text-slate-800 dark:text-slate-100">{card.value}</p>
+              <div className="text-2xl font-bold text-slate-800 dark:text-slate-100">{card.value}</div>
               <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-500">{card.desc}</p>
             </div>
           ))}

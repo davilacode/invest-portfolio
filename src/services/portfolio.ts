@@ -3,9 +3,10 @@ import { api } from './api';
 const API_BASE_URL = '/portfolios/';
 
 export interface Dashboard {
-  total_assets_value: number;
+  total_current_value: number;
+  total_investment_cost: number;
   total_portfolios: number;
-  assets_performance: number;
+  total_performance_pct: number;
   portfolios: Portfolio[];
 }
 
