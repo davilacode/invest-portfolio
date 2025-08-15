@@ -64,6 +64,7 @@ export const Portfolio: React.FC = () => {
                     <th className="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase pb-2">Símbolo</th>
                     <th className="text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase pb-2">Cantidad</th>
                     <th className="text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase pb-2">Precio Promedio</th>
+                    <th className="text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase pb-2">Total inversión</th>
                     <th className="text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase pb-2">Valor</th>
                     <th className="text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase pb-2">P/L</th>
                     <th className="text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase pb-2">Perf %</th>
@@ -71,9 +72,6 @@ export const Portfolio: React.FC = () => {
                 </thead>
                 <tbody>
                   {portfolio.assets.map(asset => {
-                    const calcValue = asset.actual_value !== undefined
-                      ? Number(asset.actual_value)
-                      : (Number(asset.quantity) * (Number(asset.average_price) || Number(asset.value) || 0));
                     return (
                       <tr key={asset.symbol} className="bg-white/80 dark:bg-neutral-900/70 rounded-lg shadow-sm">
                         <td className="py-2 px-3 text-indigo-600 dark:text-indigo-300 font-mono cursor-pointer" onClick={() => {
@@ -82,7 +80,8 @@ export const Portfolio: React.FC = () => {
                         }}>{asset.symbol}</td>
                         <td className="py-2 px-3 text-right dark:text-slate-300">{Number(asset.total_quantity_calc ?? asset.quantity).toLocaleString()}</td>
                         <td className="py-2 px-3 text-right dark:text-slate-300">${Number(asset.average_price || asset.value || 0).toLocaleString()}</td>
-                        <td className="py-2 px-3 text-right dark:text-slate-300 font-semibold">${calcValue.toLocaleString()}</td>
+                        <td className="py-2 px-3 text-right dark:text-slate-300">${Number(asset.total_cost || asset.value || 0).toLocaleString()}</td>
+                        <td className="py-2 px-3 text-right dark:text-slate-300 font-semibold">${asset.actual_value?.toFixed(2).toLocaleString()}</td>
                         <td className={Number(asset.total_profit_loss) >= 0 ? 'py-2 px-3 text-right text-green-600' : 'py-2 px-3 text-right text-red-600'}>
                           {asset.total_profit_loss !== undefined ? `${Number(asset.total_profit_loss) >= 0 ? '+' : ''}$${Number(asset.total_profit_loss).toFixed(2)}` : '-'}
                         </td>
@@ -95,6 +94,7 @@ export const Portfolio: React.FC = () => {
                 </tbody>
                 <tfoot>
                   <tr>
+                    <td />
                     <td colSpan={3} className="pt-4 text-right font-bold text-slate-700 dark:text-slate-200">Total</td>
                     <td className="pt-4 text-right font-bold text-indigo-700 dark:text-indigo-300">${totalValue.toLocaleString()}</td>
                     <td />
