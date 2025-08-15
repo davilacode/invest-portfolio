@@ -16,13 +16,39 @@ export interface Portfolio {
   base_currency: string;
   created_at: string;
   assets: Asset[];
+  // Campos detallados cuando se obtiene un portfolio individual
+  total_cost?: number;
+  current_value?: number;
+  total_profit_loss?: number;
+  performance_pct?: number; // rendimiento porcentual total
+}
+
+export interface AssetTransaction {
+  id: number;
+  created_at: string;
+  price: number | string; // listado simple puede venir string
+  quantity: number | string; // listado simple puede venir string
+  // Campos enriquecidos cuando se obtiene detalle de un portfolio
+  actual_price?: number;
+  profit_loss?: number; // ganancia/pérdida por transacción
+  performance_pct?: number; // rendimiento porcentual por transacción
 }
 
 export interface Asset {
+  id?: number; // id presente en detalle
+  portfolio?: number; // id del portfolio (detalle)
   symbol: string;
-  quantity: number;
-  value: number;
-  average_price: number;
+  quantity: number | string;
+  value?: number; // usado posiblemente en listados previos
+  average_price: number | string;
+  added_at?: string;
+  transactions?: AssetTransaction[];
+  // Campos enriquecidos de performance por asset
+  total_cost?: number;
+  actual_value?: number;
+  total_profit_loss?: number;
+  performance_pct?: number;
+  total_quantity_calc?: number;
 }
 
 export interface MarketQuote {

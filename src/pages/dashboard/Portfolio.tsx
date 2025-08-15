@@ -4,17 +4,17 @@ import { usePortfolio } from '../../hooks/usePortfolio';
 import type { Asset } from '../../services/portfolio';
 import { useState } from 'react';
 import { AddAssets } from '../../components/AddAssets';
+import { AssetTransactionsModal } from '../../components/AssetTransactionsModal';
 
 export const Portfolio: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [ openAddAssets, setOpenAddAssets ] = useState(false);
+  const [ openTransactionsModal, setOpenTransactionsModal ] = useState(false);
+  const [ selectedAsset, setSelectedAsset ] = useState<Asset | null>(null);
 
   const { data: portfolio, isLoading, error } = usePortfolio(id ?? '');
 
-  let totalValue = 0;
-  if (portfolio?.assets) {
-    totalValue = portfolio.assets.reduce((sum, a: Asset) => sum + (Number(a.quantity) * (Number(a.average_price) || Number(a.value) || 0)), 0);
-  }
+  const totalValue = Number(portfolio?.current_value ?? 0);
 
   if (isLoading) {
     return (
@@ -65,22 +65,40 @@ export const Portfolio: React.FC = () => {
                     <th className="text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase pb-2">Cantidad</th>
                     <th className="text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase pb-2">Precio Promedio</th>
                     <th className="text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase pb-2">Valor</th>
+                    <th className="text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase pb-2">P/L</th>
+                    <th className="text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase pb-2">Perf %</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {portfolio.assets.map(asset => (
-                    <tr key={asset.symbol} className="bg-white/80 dark:bg-neutral-900/70 rounded-lg shadow-sm">
-                      <td className="py-2 px-3 text-indigo-600 dark:text-indigo-300 font-mono">{asset.symbol}</td>
-                      <td className="py-2 px-3 text-right dark:text-slate-300">{Number(asset.quantity).toLocaleString()}</td>
-                      <td className="py-2 px-3 text-right dark:text-slate-300">${Number(asset.average_price || asset.value || 0).toLocaleString()}</td>
-                      <td className="py-2 px-3 text-right dark:text-slate-300 font-semibold">${(Number(asset.quantity) * (Number(asset.average_price) || Number(asset.value) || 0)).toLocaleString()}</td>
-                    </tr>
-                  ))}
+                  {portfolio.assets.map(asset => {
+                    const calcValue = asset.actual_value !== undefined
+                      ? Number(asset.actual_value)
+                      : (Number(asset.quantity) * (Number(asset.average_price) || Number(asset.value) || 0));
+                    return (
+                      <tr key={asset.symbol} className="bg-white/80 dark:bg-neutral-900/70 rounded-lg shadow-sm">
+                        <td className="py-2 px-3 text-indigo-600 dark:text-indigo-300 font-mono cursor-pointer" onClick={() => {
+                          setOpenTransactionsModal(true);
+                          setSelectedAsset(asset);
+                        }}>{asset.symbol}</td>
+                        <td className="py-2 px-3 text-right dark:text-slate-300">{Number(asset.total_quantity_calc ?? asset.quantity).toLocaleString()}</td>
+                        <td className="py-2 px-3 text-right dark:text-slate-300">${Number(asset.average_price || asset.value || 0).toLocaleString()}</td>
+                        <td className="py-2 px-3 text-right dark:text-slate-300 font-semibold">${calcValue.toLocaleString()}</td>
+                        <td className={Number(asset.total_profit_loss) >= 0 ? 'py-2 px-3 text-right text-green-600' : 'py-2 px-3 text-right text-red-600'}>
+                          {asset.total_profit_loss !== undefined ? `${Number(asset.total_profit_loss) >= 0 ? '+' : ''}$${Number(asset.total_profit_loss).toFixed(2)}` : '-'}
+                        </td>
+                        <td className={Number(asset.performance_pct) >= 0 ? 'py-2 px-3 text-right text-green-600' : 'py-2 px-3 text-right text-red-600'}>
+                          {asset.performance_pct !== undefined ? `${Number(asset.performance_pct).toFixed(2)}%` : '-'}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
                 <tfoot>
                   <tr>
                     <td colSpan={3} className="pt-4 text-right font-bold text-slate-700 dark:text-slate-200">Total</td>
                     <td className="pt-4 text-right font-bold text-indigo-700 dark:text-indigo-300">${totalValue.toLocaleString()}</td>
+                    <td />
+                    <td />
                   </tr>
                 </tfoot>
               </table>
@@ -89,6 +107,11 @@ export const Portfolio: React.FC = () => {
         </div>
       </div>
       <AddAssets open={openAddAssets} setOpen={setOpenAddAssets} />
+      <AssetTransactionsModal
+        open={openTransactionsModal}
+        setOpen={setOpenTransactionsModal}
+        asset={selectedAsset}
+      />
     </main>
   );
 };
