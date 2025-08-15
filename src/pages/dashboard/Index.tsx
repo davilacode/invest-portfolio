@@ -9,7 +9,8 @@ export function Dashboard() {
   const { data } = useDashboard();
   const navigate = useNavigate();
 
-  // ...existing code...
+  const { total_assets_value, total_portfolios } = data || {};
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-200 dark:from-neutral-900 dark:to-neutral-950 px-4 pt-28 pb-12">
       <div className="max-w-6xl mx-auto space-y-10">
@@ -28,9 +29,9 @@ export function Dashboard() {
 
         <section className="grid gap-6 md:grid-cols-3">
           {[
-            { label: 'Valor Total', value: data?.total_assets_value ?? 0, desc: 'Suma de tus portafolios' },
+            { label: 'Valor Total', value: `$${total_assets_value?.toLocaleString() ?? 0}`, desc: 'Suma de tus portafolios' },
             { label: 'Rendimiento 24h', value: 0, desc: 'Variación diaria (%)' },
-            { label: 'Portafolios', value: data?.total_portfolios ?? 0, desc: 'Número creados' }
+            { label: 'Portafolios', value: total_portfolios ?? 0, desc: 'Número creados' }
           ].map(card => (
             <div key={card.label} className="relative group overflow-hidden rounded-2xl border border-slate-200/60 dark:border-neutral-800 bg-white/70 dark:bg-neutral-900/60 backdrop-blur shadow-sm px-5 py-6 transition hover:shadow-md">
               <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition [mask-image:radial-gradient(circle_at_center,black,transparent_70%)]">
