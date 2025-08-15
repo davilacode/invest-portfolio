@@ -1,7 +1,12 @@
 import { useAuth } from '../../context/useAuth';
+import { usePortfolios } from '../../hooks/usePortfolio';
 
 export function Dashboard() {
   const { user, logout } = useAuth();
+
+  const { data } = usePortfolios();
+
+  console.log('Portfolios:', data);
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-200 dark:from-neutral-900 dark:to-neutral-950 px-4 pt-28 pb-12">
