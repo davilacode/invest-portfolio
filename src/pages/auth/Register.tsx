@@ -64,9 +64,20 @@ export default function Register() {
               />
             </div>
             {error && (
-              <div className="text-sm font-medium text-red-600 dark:text-rose-400 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-md px-3 py-2 flex items-center gap-2">
-                <span role="img" aria-label="error">⚠️</span>
-                <p className="m-0">{error}</p>
+              <div className="text-sm text-red-600 dark:text-rose-400 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-md px-3 py-2" aria-live="assertive">
+                <div className="flex items-center gap-2 font-medium mb-1">
+                  <span role="img" aria-label="error">⚠️</span>
+                  <span>Error</span>
+                </div>
+                {error.includes('\n') ? (
+                  <ul className="list-disc pl-5 space-y-1">
+                    {error.split('\n').map((line, idx) => (
+                      <li key={idx}>{line}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="m-0 font-medium">{error}</p>
+                )}
               </div>
             )}
             <button

@@ -34,9 +34,30 @@ apiClient.interceptors.response.use(
     // TODO: Refresh tokens
     let message = error.message || 'Request failed';
     const data: unknown = error.response?.data;
-    if (data && typeof data === 'object' && 'detail' in data) {
-      const detail = (data as { detail?: unknown }).detail;
-      if (typeof detail === 'string' && detail.trim()) message = detail;
+    
+    // Normalización para respuestas tipo Django REST Framework con errores por campo
+    if (data && typeof data === 'object') {
+      const obj = data as Record<string, unknown>;
+      // Prioridad al campo 'detail'
+      if ('detail' in obj && typeof obj.detail === 'string' && obj.detail.trim()) {
+        message = obj.detail.trim();
+      } else {
+        const collected: string[] = [];
+        for (const [field, value] of Object.entries(obj)) {
+          if (Array.isArray(value) && value.every(v => typeof v === 'string')) {
+            // Si solo hay un campo (p.ej. password) no anteponer el nombre del campo para limpieza visual
+            const singleField = Object.keys(obj).length === 1;
+            for (const v of value) {
+              collected.push(singleField ? v : `${field}: ${v}`);
+            }
+          } else if (typeof value === 'string') {
+            collected.push(`${field}: ${value}`);
+          }
+        }
+        if (collected.length) {
+          message = collected.join('\n');
+        }
+      }
     }
     return Promise.reject(new Error(message));
   }
